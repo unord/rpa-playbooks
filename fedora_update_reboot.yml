@@ -1,5 +1,6 @@
 ---
   - name: Patch the server and Reboot
+    hosts: all
     gather_facts: no
     tasks:
       - name: Patch the server
