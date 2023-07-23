@@ -1,0 +1,19 @@
+---
+  - name: Patch all servers in swarm
+    hosts: all
+    gather_facts: no
+    become: yes
+    tasks:
+      - name: Patch the server
+        tags: Patch
+        become: yes
+        become_method: sudo
+        become_user: root
+        shell: "dnf upgrade -y"
+        register: patchresult
+
+      - name: Check the Uptime of the servers
+        shell: "uptime"
+        register: Uptime
+
+      - debug: var=Uptime
