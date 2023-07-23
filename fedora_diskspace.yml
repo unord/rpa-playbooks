@@ -1,6 +1,6 @@
 ---
 - name: Get Disk Space Information
-  hosts: all
+  hosts: your_remote_fedora_servers_group
   gather_facts: true
 
   tasks:
@@ -13,12 +13,17 @@
         path: /
       register: main_disk_output
 
+    - name: Convert Bytes to Human-Readable Format
+      set_fact:
+        total_size_human: "{{ main_disk_output.stat.size | custom_humanize }}"
+        available_size_human: "{{ main_disk_output.stat.size_available | custom_humanize }}"
+
     - name: Display Main Hard Disk Information
       debug:
         msg: |
           Server: {{ ansible_hostname }}
           Main Hard Disk Info:
           - Mount Point: /
-            Total Size: {{ main_disk_output.stat.size | humanize(iec_prefix=True) }}
-            Available: {{ main_disk_output.stat.size_available | humanize(iec_prefix=True) }}
+            Total Size: {{ total_size_human }}
+            Available: {{ available_size_human }}
             Used Percentage: {{ ((main_disk_output.stat.size - main_disk_output.stat.size_available) / main_disk_output.stat.size) * 100 }}%
