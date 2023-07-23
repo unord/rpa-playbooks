@@ -19,6 +19,6 @@
           Server: {{ ansible_hostname }}
           Main Hard Disk Info:
           - Mount Point: /
-            Total Size: {{ main_disk_output.stat.size|filesize }}
-            Available: {{ main_disk_output.stat.size_available|filesize }}
+            Total Size: {{ main_disk_output.stat.size | humanize(iec_prefix=True) }}
+            Available: {{ main_disk_output.stat.size_available | humanize(iec_prefix=True) }}
             Used Percentage: {{ ((main_disk_output.stat.size - main_disk_output.stat.size_available) / main_disk_output.stat.size) * 100 }}%
