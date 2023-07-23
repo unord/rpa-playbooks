@@ -8,15 +8,20 @@
       ansible.builtin.setup:
         filter: ansible_mounts
 
+    - name: Get Disk Space Information for each mount point
+      ansible.builtin.stat:
+        path: "{{ item.mount }}"
+      loop: "{{ ansible_mounts }}"
+      register: disk_space_output fedora
+
     - name: Display Disk Space Information
       debug:
         msg: |
           Server: {{ ansible_hostname }}
           Diskspace Info:
-          {% for mount in ansible_mounts %}
-          - Mount Point: {{ mount.mount }}
-            Total Size: {{ mount.size_total }}
-            Used: {{ mount.size_used }}
-            Available: {{ mount.size_available }}
-            Used Percentage: {{ mount.percent_used }}%
+          {% for item in disk_space_output.results %}
+          - Mount Point: {{ item.item.mount }}
+            Total Size: {{ item.stat.size|filesize }}
+            Available: {{ item.stat.size_available|filesize }}
+            Used Percentage: {{ ((item.stat.size - item.stat.size_available) / item.stat.size) * 100 }}%
           {% endfor %}
