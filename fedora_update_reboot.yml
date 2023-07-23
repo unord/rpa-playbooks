@@ -4,20 +4,12 @@
     gather_facts: no
     tasks:
       - name: Patch the server
-        become: yes
-        become_method: sudo
-        become_user: robo
-        become_ask_pass: False
         tags: Patch
         shell: "dnf upgrade -y"
         register: patchresult
 
       - name: Reboot the server
         tags: reboot
-        become: yes
-        become_method: sudo
-        become_user: robo
-        become_ask_pass: False
         shell: "sleep 5 && reboot"
         async: 1
         poll: 0
