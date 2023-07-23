@@ -4,10 +4,19 @@
   gather_facts: true
 
   tasks:
-    - name: Get Disk Space (Fedora)
-      shell: "df -h --output=source,size,used,avail,pcent"
-      register: disk_space_output
+    - name: Gather Facts
+      ansible.builtin.setup:
+        filter: ansible_mounts
 
     - name: Display Disk Space Information
       debug:
-        var: disk_space_output.stdout_lines
+        msg: |
+          Server: {{ ansible_hostname }}
+          Diskspace Info:
+          {% for mount in ansible_mounts %}
+          - Mount Point: {{ mount.mount }}
+            Total Size: {{ mount.size_total }}
+            Used: {{ mount.size_used }}
+            Available: {{ mount.size_available }}
+            Used Percentage: {{ mount.percent_used }}%
+          {% endfor %}
