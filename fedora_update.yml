@@ -11,9 +11,3 @@
         become_user: root
         shell: "dnf upgrade -y"
         register: patchresult
-
-      - name: Check the Uptime of the servers
-        shell: "uptime"
-        register: Uptime
-
-      - debug: var=Uptime
