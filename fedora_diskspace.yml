@@ -1,20 +1,21 @@
 ---
 - name: Get Disk Space Information
   hosts: all
-  gather_facts: true
+  gather_facts: false
 
   tasks:
-    - name: Get Main Hard Disk Information
-      ansible.builtin.stat:
-        path: /
-      register: main_disk_output
+    - name: Run df command on /dev/sda3
+      ansible.builtin.command: df /dev/sda3
+      register: df_output
+      changed_when: false
 
-    - name: Display Main Hard Disk Information
+    - name: Extract Disk Space Information
+      set_fact:
+        disk_space_info: "{{ df_output.stdout_lines | skip(1) | first | trim }}"
+      when: df_output.rc == 0 and df_output.stdout_lines | length > 1
+
+    - name: Display Disk Space Information for /dev/sda3
       debug:
         msg: |
           Server: {{ ansible_hostname }}
-          Main Hard Disk Info:
-          - Mount Point: /
-            Total Size: {{ main_disk_output.stat.size | filesizeformat }}
-            Available: {{ main_disk_output.stat.size_available | default(0) | filesizeformat }}
-            Used Percentage: {{ ((main_disk_output.stat.size - main_disk_output.stat.size_available | default(0)) / main_disk_output.stat.size) * 100 }}%
+          Disk Space Info for /dev/sda3: {{ disk_space_info }}
