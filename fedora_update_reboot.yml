@@ -6,7 +6,7 @@
       - name: Patch the server
         become: yes
         become_method: sudo
-        become_user: root
+        become_user: robo
         tags: Patch
         shell: "dnf upgrade -y"
         register: patchresult
@@ -15,7 +15,7 @@
         tags: reboot
         become: yes
         become_method: sudo
-        become_user: root
+        become_user: robo
         shell: "sleep 5 && reboot"
         async: 1
         poll: 0
