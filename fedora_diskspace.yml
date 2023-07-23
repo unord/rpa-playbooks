@@ -4,10 +4,6 @@
   gather_facts: true
 
   tasks:
-    - name: Gather Facts
-      ansible.builtin.setup:
-        filter: ansible_mounts
-
     - name: Get Main Hard Disk Information
       ansible.builtin.stat:
         path: /
@@ -20,5 +16,5 @@
           Main Hard Disk Info:
           - Mount Point: /
             Total Size: {{ main_disk_output.stat.size | filesizeformat }}
-            Available: {{ main_disk_output.stat.size_available | filesizeformat }}
-            Used Percentage: {{ ((main_disk_output.stat.size - main_disk_output.stat.size_available) / main_disk_output.stat.size) * 100 }}%
+            Available: {{ main_disk_output.stat.size_available | default(0) | filesizeformat }}
+            Used Percentage: {{ ((main_disk_output.stat.size - main_disk_output.stat.size_available | default(0)) / main_disk_output.stat.size) * 100 }}%
