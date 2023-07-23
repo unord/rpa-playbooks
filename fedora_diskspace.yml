@@ -18,4 +18,4 @@
       debug:
         msg: |
           Server: {{ ansible_hostname }}
-          Disk Space Info for /dev/sda3: {{ disk_space_info }}
+          Disk Space Info for /dev/sda3: {{ disk_space_info | default('Information not available') }}
