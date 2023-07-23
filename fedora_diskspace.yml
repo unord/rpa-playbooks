@@ -1,6 +1,6 @@
 ---
 - name: Get Disk Space Information
-  hosts: your_remote_fedora_servers_group
+  hosts: all
   gather_facts: true
 
   tasks:
