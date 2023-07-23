@@ -1,4 +1,10 @@
 ---
+# Custom Jinja2 Filter
+filters:
+  custom_humanize: "{{ size | float | int | filesizeformat }}"
+
+# Main Playbook starts here
+---
 - name: Get Disk Space Information
   hosts: all
   gather_facts: true
