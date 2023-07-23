@@ -1,6 +1,6 @@
 ---
 - name: Get Disk Space Information
-  hosts: all
+  hosts: your_remote_fedora_servers_group
   gather_facts: true
 
   tasks:
@@ -8,20 +8,17 @@
       ansible.builtin.setup:
         filter: ansible_mounts
 
-    - name: Get Disk Space Information for each mount point
+    - name: Get Main Hard Disk Information
       ansible.builtin.stat:
-        path: "{{ item.mount }}"
-      loop: "{{ ansible_mounts }}"
-      register: disk_space_output
+        path: /
+      register: main_disk_output
 
-    - name: Display Disk Space Information
+    - name: Display Main Hard Disk Information
       debug:
         msg: |
           Server: {{ ansible_hostname }}
-          Diskspace Info:
-          {% for item in disk_space_output.results %}
-          - Mount Point: {{ item.item.mount }}
-            Total Size: {{ item.stat.size|filesize }}
-            Available: {{ item.stat.size_available|filesize }}
-            Used Percentage: {{ ((item.stat.size - item.stat.size_available) / item.stat.size) * 100 }}%
-          {% endfor %}
+          Main Hard Disk Info:
+          - Mount Point: /
+            Total Size: {{ main_disk_output.stat.size|filesize }}
+            Available: {{ main_disk_output.stat.size_available|filesize }}
+            Used Percentage: {{ ((main_disk_output.stat.size - main_disk_output.stat.size_available) / main_disk_output.stat.size) * 100 }}%
