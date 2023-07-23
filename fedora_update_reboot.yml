@@ -2,6 +2,7 @@
   - name: Patch the server and Reboot
     hosts: all
     become: true
+    become-method: sudo
     gather_facts: no
     tasks:
       - name: Patch the server
