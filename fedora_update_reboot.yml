@@ -2,6 +2,7 @@
   - name: Patch the server and Reboot
     hosts: all
     gather_facts: no
+    become: yes
     tasks:
       - name: Patch the server
         tags: Patch
