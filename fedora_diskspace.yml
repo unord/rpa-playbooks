@@ -1,10 +1,4 @@
 ---
-# Custom Jinja2 Filter
-filters:
-  custom_humanize: "{{ size | float | int | filesizeformat }}"
-
-# Main Playbook starts here
----
 - name: Get Disk Space Information
   hosts: all
   gather_facts: true
@@ -19,17 +13,12 @@ filters:
         path: /
       register: main_disk_output
 
-    - name: Convert Bytes to Human-Readable Format
-      set_fact:
-        total_size_human: "{{ main_disk_output.stat.size | custom_humanize }}"
-        available_size_human: "{{ main_disk_output.stat.size_available | custom_humanize }}"
-
     - name: Display Main Hard Disk Information
       debug:
         msg: |
           Server: {{ ansible_hostname }}
           Main Hard Disk Info:
           - Mount Point: /
-            Total Size: {{ total_size_human }}
-            Available: {{ available_size_human }}
+            Total Size: {{ main_disk_output.stat.size | filesizeformat }}
+            Available: {{ main_disk_output.stat.size_available | filesizeformat }}
             Used Percentage: {{ ((main_disk_output.stat.size - main_disk_output.stat.size_available) / main_disk_output.stat.size) * 100 }}%
