@@ -1,0 +1,13 @@
+---
+- name: Get Disk Space Information
+  hosts: all
+  gather_facts: true
+
+  tasks:
+    - name: Get Disk Space (Fedora)
+      shell: "df -h --output=source,size,used,avail,pcent"
+      register: disk_space_output
+
+    - name: Display Disk Space Information
+      debug:
+        var: disk_space_output.stdout_lines
