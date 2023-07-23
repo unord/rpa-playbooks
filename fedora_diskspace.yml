@@ -12,7 +12,7 @@
       ansible.builtin.stat:
         path: "{{ item.mount }}"
       loop: "{{ ansible_mounts }}"
-      register: disk_space_output fedora
+      register: disk_space_output
 
     - name: Display Disk Space Information
       debug:
