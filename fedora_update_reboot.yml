@@ -6,11 +6,17 @@
     tasks:
       - name: Patch the server
         tags: Patch
+        become: yes
+        become_method: sudo
+        become_user: root
         shell: "dnf upgrade -y"
         register: patchresult
 
       - name: Reboot the server
         tags: reboot
+        become: yes
+        become_method: sudo
+        become_user: root
         shell: "sleep 5 && reboot"
         async: 1
         poll: 0
