@@ -5,7 +5,7 @@
 
   tasks:
     - name: Run df command on /dev/sda3
-      ansible.builtin.command: df /dev/sda3
+      ansible.builtin.shell: df /dev/sda3
       register: df_output
       changed_when: false
 
