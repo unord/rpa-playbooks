@@ -1,11 +1,11 @@
 ---
 - name: Get Disk Space Information
   hosts: all
-  gather_facts: true
+  gather_facts: false
 
   tasks:
     - name: Run df command on /dev/sda3
-      ansible.builtin.shell: df /dev/sda3 | awk 'FNR == 2 {printf "%.1f", $4/1024}'
+      ansible.builtin.shell: df /dev/sda3 | awk 'FNR == 2 {printf "%.1f", $4/(1024*1024)}'
       register: free_space_output
       changed_when: false
 
