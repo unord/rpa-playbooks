@@ -5,17 +5,12 @@
 
   tasks:
     - name: Run df command on /dev/sda3
-      ansible.builtin.shell: df /dev/sda3
-      register: df_output
+      ansible.builtin.shell: df /dev/sda3 | awk 'FNR == 2 {printf "%.1f", $4/1024}'
+      register: free_space_output
       changed_when: false
 
-    - name: Extract Disk Space Information
-      set_fact:
-        disk_space_info: "{{ df_output.stdout_lines[1] | trim }}"
-      when: df_output.rc == 0 and df_output.stdout_lines | length > 1
-
-    - name: Display Disk Space Information for /dev/sda3
+    - name: Display Free Space for /dev/sda3
       debug:
         msg: |
           Server: {{ ansible_hostname }}
-          Disk Space Info for /dev/sda3: {{ disk_space_info | default('Information not available') }}
+          Free Space for /dev/sda3: {{ free_space_output.stdout }} GB
