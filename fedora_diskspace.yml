@@ -1,7 +1,7 @@
 ---
 - name: Get Disk Space Information
   hosts: all
-  gather_facts: false
+  gather_facts: true
 
   tasks:
     - name: Run df command on /dev/sda3
