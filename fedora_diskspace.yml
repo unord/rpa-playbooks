@@ -11,11 +11,12 @@
 
     - name: Extract Disk Space Information
       set_fact:
-        disk_space_info: "{{ df_output.stdout_lines | skip(1) | first | trim }}"
-      when: df_output.rc == 0 and df_output.stdout_lines | length > 1
+        df_lines: "{{ df_output.stdout_lines | list }}"
+        disk_space_info: "{{ df_lines[1] | trim }}"
+      when: df_output.rc == 0 and df_lines | length > 1
 
     - name: Display Disk Space Information for /dev/sda3
       debug:
         msg: |
           Server: {{ ansible_hostname }}
-          Disk Space Info for /dev/sda3: {{ disk_space_info }}
+          Disk Space Info for /dev/sda3: {{ disk_space_info | default('Information not available') }}
