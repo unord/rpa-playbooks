@@ -1,0 +1,17 @@
+---
+- name: Disable tx-checksum-ip-generic
+  hosts: all
+  gather_facts: yes
+  become: yes
+  tasks:
+    - name: Get network facts
+      setup:
+        gather_subset: network
+
+    - name: Set the network interface variable
+      set_fact:
+        net_interface: "{{ ansible_interfaces | select('match', '^e') | first }}"
+
+    - name: Disable tx-checksum-ip-generic on network interface
+      command: ethtool -K {{ net_interface }} tx-checksum-ip-generic off
+...
