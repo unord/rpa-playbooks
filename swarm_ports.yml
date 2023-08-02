@@ -1,8 +1,16 @@
 ---
-- name: Open firewall ports mfor docker swarm
+- name: Open firewall ports
   hosts: all
   gather_facts: yes
   become: yes
+  vars:
+    ports:
+      - 2376/tcp
+      - 2377/tcp
+      - 4789/udp
+      - 7946/tcp
+      - 7946/udp
+      - 9000/tcp
   tasks:
     - name: Install firewalld if it's not installed
       package:
@@ -20,12 +28,7 @@
         port: "{{ item }}"
         permanent: true
         state: enabled
-      with_items:
-        - 2376/tcp
-        - 2377/tcp
-        - 7946/tcp
-        - 7946/udp
-        - 4789/udp
+      with_items: "{{ ports }}"
       notify: 
         - Reload firewalld
 
