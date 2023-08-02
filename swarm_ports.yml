@@ -1,6 +1,6 @@
 ---
 - name: Open firewall ports mfor docker swarm
-  hosts: your_target_hosts
+  hosts: all
   gather_facts: yes
   become: yes
   tasks:
