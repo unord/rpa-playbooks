@@ -23,9 +23,13 @@
       - 4450/tcp
       - 4789/udp
       - 5000/tcp
+      - 5001/tcp
       - 5432/tcp
+      - 6379/tcp
       - 7946/tcp
       - 7946/udp
+      - 8000/tcp
+      - 8005/tcp
       - 8080/tcp
       - 8081/tcp
       - 8082/tcp
@@ -47,17 +51,12 @@
       - 8098/tcp
       - 8099/tcp
       - 9000/tcp
+      - 9443/tcp
   tasks:
     - name: Install firewalld if it's not installed
       package:
         name: firewalld
         state: present
-
-    - name: Ensure firewalld is running
-      service:
-        name: firewalld
-        state: started
-        enabled: yes
 
     - name: Open firewall ports
       firewalld:
@@ -67,6 +66,12 @@
       with_items: "{{ ports }}"
       notify: 
         - Reload firewalld
+
+    - name: Ensure firewalld is running
+      service:
+        name: firewalld
+        state: started
+        enabled: yes
 
   handlers:
     - name: Reload firewalld
