@@ -5,10 +5,13 @@
   become: yes
   vars:
     ports:
+      - 22/tcp
       - 80/tcp
       - 443/tcp
+      - 2375/tcp
       - 2376/tcp
       - 2377/tcp
+      - 2377/udp
       - 3000/tcp
       - 4440/tcp
       - 4441/tcp
