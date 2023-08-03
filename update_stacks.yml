@@ -9,13 +9,15 @@
       state: directory
 
   - name: Add directory to Git safe list
-    command: git config --global --add core.safecrlf /home/robo/docker-volumes/playbook
-    ignore_errors: yes
+    shell: |
+      git config --global --add safe.directory /home/robo/docker-volumes/playbook
+    ignore_errors: true
 
   - name: Clone Git repository
     git:
       repo: 'https://github.com/unord/rpa-stacks.git'
-      dest: "/home/robo/docker-volumes/playbook/"
+      dest: "/home/robo/docker-volumes/playbook/github-repo"
+    become: yes
     ignore_errors: yes
 
   - name: Authenticate with Portainer API
