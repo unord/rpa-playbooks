@@ -6,13 +6,13 @@
 
   - name: Ensure directory exists
     file:
-      path: "{{ ansible_env.PWD }}/github-repo"
+      path: "/home/robo/docker-volumes/playbook"
       state: directory
 
   - name: Clone Git repository
     git:
       repo: 'https://github.com/unord/rpa-stacks.git'
-      dest: "{{ ansible_env.PWD }}/github-repo"
+      dest: "/home/robo/docker-volumes/playbook"
     ignore_errors: yes
 
   - name: Authenticate with Portainer API
@@ -24,8 +24,6 @@
       return_content: yes
       status_code: 200
     register: portainer_auth_result
-
-  # ... rest of your tasks ...
 
   - name: Create a stack for each .yml file in a directory
     become: yes
@@ -43,4 +41,4 @@
       return_content: yes
       status_code: 201
     with_fileglob:
-      - "{{ ansible_env.PWD }}/github-repo/*.yml"
+      - "./github-repo/*.yml"
