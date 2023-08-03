@@ -34,23 +34,10 @@
     set_fact:
       portainer_jwt: "{{ portainer_auth_result.json.jwt }}"
 
-  - name: Retrieve Portainer endpoints
-    uri:
-      url: "http://10.18.225.150:9000/api/endpoints"
-      method: GET
-      headers:
-        Authorization: "Bearer {{ portainer_jwt }}"
-      return_content: yes
-      status_code: 200
-    register: portainer_endpoints_result
-
-
-  - name: Set Endpoint ID as a fact
+  - name: Set hardcoded Endpoint ID as a fact
     set_fact:
-      endpoint_id: "{{ item.Id }}"
-    loop: "{{ portainer_endpoints_result.json }}"
-    when: item.Name == "Docker Swarm Linux"
-    
+      endpoint_id: 44287
+
   - name: Retrieve all Portainer stacks
     uri:
       url: "http://10.18.225.150:9000/api/stacks"
@@ -59,17 +46,16 @@
         Authorization: "Bearer {{ portainer_jwt }}"
       return_content: yes
       status_code: 200
-    register: all_stacks_result
+    register: portainer_stacks_result
 
   - name: Filter stacks by endpoint ID
     set_fact:
-      endpoint_stacks: "{{ all_stacks_result.json | selectattr('EndpointId', 'equalto', endpoint_id) | list }}"
+      endpoint_stacks: "{{ portainer_stacks_result.json | selectattr('EndpointID', 'equalto', endpoint_id) | list }}"
 
   - name: Print all stack names
     debug:
       msg: "{{ item.Name }}"
     loop: "{{ endpoint_stacks }}"
-
 
   - name: Create a stack for each .yml file in a directory
     uri:
