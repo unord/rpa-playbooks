@@ -1,0 +1,28 @@
+---
+- hosts: all
+  gather_facts: no
+  vars:
+    folder_path: /home/robo/docker-volumes
+    fstab_path: /etc/fstab
+    cifs_detail: "//Unord-fil.efif.dk/HomeM-Z/R/robo/volumes/ /home/robo/docker-volumes cifs username={{ ansible_user }},password={{ ansible_sudo_pass }},iocharset=utf8,rw,uid=1000,sec=ntlmssp,vers=3.0 0 0"
+  tasks:
+    - name: Ensure directory exists
+      ansible.builtin.file:
+        path: "{{ folder_path }}"
+        state: directory
+
+    - name: Install cifs-utils
+      ansible.builtin.dnf:
+        name: cifs-utils
+        state: latest
+      become: yes
+
+    - name: Ensure fstab contains the CIFS mount
+      ansible.builtin.mount:
+        path: "{{ folder_path }}"
+        src: "//Unord-fil.efif.dk/HomeM-Z/R/robo/volumes/"
+        fstype: cifs
+        opts: "username={{ ansible_user }},password={{ ansible_sudo_pass }},iocharset=utf8,rw,uid=1000,sec=ntlmssp,vers=3.0"
+        state: present
+      become: yes
+...
