@@ -1,5 +1,5 @@
 ---
-- hosts: l10.18.225.150
+- hosts: 10.18.225.150
   become: yes
   gather_facts: no
   tasks:
