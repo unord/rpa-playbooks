@@ -4,7 +4,7 @@
   tasks:
     - name: Ensure directory exists
       file:
-        path: "/home/robo/docker-volumes/playbook/"
+        path: "/github-repo/"
         state: directory
 
     - name: Add directory to Git safe list
@@ -15,7 +15,7 @@
     - name: Clone Git repository
       git:
         repo: 'https://github.com/unord/rpa-stacks.git'
-        dest: "/home/robo/docker-volumes/playbook/"
+        dest: "/github-repo/"
       become: yes
       ignore_errors: yes
 
