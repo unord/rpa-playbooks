@@ -1,6 +1,5 @@
 ---
 - hosts: all
-  become: yes
   gather_facts: no
   tasks:
   - name: Authenticate with Portainer API
@@ -34,6 +33,7 @@
     when: item.Name == "Docker Swarm Linux"
 
   - name: Create a stack for each .yml file in a directory
+    become: yes
     uri:
       url: "http://10.18.225.150:9000/api/endpoints/{{ endpoint_id }}/stacks?type=1"
       method: POST
