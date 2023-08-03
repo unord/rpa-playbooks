@@ -51,20 +51,25 @@
     loop: "{{ portainer_endpoints_result.json }}"
     when: item.Name == "Docker Swarm Linux"
     
-  - name: Retrieve Portainer stacks for the selected endpoint
+  - name: Retrieve all Portainer stacks
     uri:
-      url: "http://10.18.225.150:9000/api/endpoints/{{ endpoint_id }}/stacks"
+      url: "http://10.18.225.150:9000/api/stacks"
       method: GET
       headers:
         Authorization: "Bearer {{ portainer_jwt }}"
       return_content: yes
       status_code: 200
-    register: portainer_stacks_result
+    register: all_stacks_result
+
+  - name: Filter stacks by endpoint ID
+    set_fact:
+      endpoint_stacks: "{{ all_stacks_result.json | selectattr('EndpointId', 'equalto', endpoint_id) | list }}"
 
   - name: Print all stack names
     debug:
       msg: "{{ item.Name }}"
-    loop: "{{ portainer_stacks_result.json }}"
+    loop: "{{ endpoint_stacks }}"
+
 
   - name: Create a stack for each .yml file in a directory
     uri:
