@@ -38,9 +38,9 @@
     set_fact:
       endpoint_id: 44287
 
-  - name: Retrieve all Portainer stacks
+  - name: Retrieve all Portainer stacks for the specific endpoint
     uri:
-      url: "http://10.18.225.150:9000/api/stacks"
+      url: "http://10.18.225.150:9000/api/endpoints/{{ endpoint_id }}/stacks"
       method: GET
       headers:
         Authorization: "Bearer {{ portainer_jwt }}"
