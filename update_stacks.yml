@@ -1,6 +1,6 @@
 ---
 - hosts: all
-  gather_facts: no
+  gather_facts: yes
   tasks:
   - name: Authenticate with Portainer API
     uri:
@@ -31,6 +31,10 @@
       endpoint_id: "{{ item.Id }}"
     loop: "{{ portainer_endpoints_result.json }}"
     when: item.Name == "Docker Swarm Linux"
+
+  - name: Display hostname
+    debug:
+      msg: "The current hostname is: {{ ansible_facts['nodename'] }}"
 
   - name: Create a stack for each .yml file in a directory
     become: yes
