@@ -1,0 +1,43 @@
+---
+- hosts: docker_swarm
+  gather_facts: no
+  become: yes
+  tasks:
+
+  - name: Fetch docker network list
+    shell: docker network ls -q
+    register: docker_network_list
+    ignore_errors: yes
+
+  - name: Remove all Docker networks
+    shell: docker network rm {{ item }}
+    with_items: "{{ docker_network_list.stdout_lines }}"
+    ignore_errors: yes
+
+  - name: Stop Docker
+    systemd:
+      name: docker
+      state: stopped
+    become: yes
+
+  - name: Uninstall Docker
+    dnf:
+      name: 
+        - docker-ce
+        - docker-ce-cli
+        - containerd.io
+      state: absent
+    become: yes
+
+  - name: Remove Docker config directory
+    file:
+      path: /etc/docker
+      state: absent
+    become: yes
+
+  - name: Remove Docker services directory
+    file:
+      path: /var/lib/docker
+      state: absent
+    become: yes
+...
