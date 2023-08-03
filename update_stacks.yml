@@ -6,7 +6,7 @@
 
   - name: Ensure directory exists
     file:
-      path: "{{ ansible_env.PWD }}/github-repo"
+      path: "./github-repo"
       state: directory
 
   - name: Clone Git repository
@@ -42,4 +42,4 @@
       return_content: yes
       status_code: 201
     with_fileglob:
-      - "{{ ansible_env.PWD }}/github-repo/*.yml"
+      - "./github-repo/*.yml"
