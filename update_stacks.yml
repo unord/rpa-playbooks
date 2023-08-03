@@ -1,0 +1,50 @@
+---
+- hosts: localhost
+  gather_facts: no
+  tasks:
+  - name: Authenticate with Portainer API
+    uri:
+      url: "http://10.18.225.150:9000/api/auth"
+      method: POST
+      body_format: json
+      body: {"Username": "{{ ansible_user }}", "Password": "{{ ansible_sudo_pass }}"}
+      return_content: yes
+      status_code: 200
+    register: portainer_auth_result
+
+  - name: Set Portainer JWT as a fact
+    set_fact:
+      portainer_jwt: "{{ portainer_auth_result.json.jwt }}"
+
+  - name: Retrieve Portainer endpoints
+    uri:
+      url: "http://10.18.225.150:9000/api/endpoints"
+      method: GET
+      headers:
+        Authorization: "Bearer {{ portainer_jwt }}"
+      return_content: yes
+      status_code: 200
+    register: portainer_endpoints_result
+
+  - name: Set Endpoint ID as a fact
+    set_fact:
+      endpoint_id: "{{ item.Id }}"
+    loop: "{{ portainer_endpoints_result.json }}"
+    when: item.Name == "Docker Swarm Linux"
+
+  - name: Create a stack for each .yml file in a directory
+    uri:
+      url: "http://10.18.225.150:9000/api/endpoints/{{ endpoint_id }}/stacks?type=1"
+      method: POST
+      body_format: json
+      headers:
+        Authorization: "Bearer {{ portainer_jwt }}"
+      body:
+        {
+          "Name": "{{ item | basename | regex_replace('\\.yml$', '') }}",
+          "StackFileContent": "{{ lookup('file', item) }}"
+        }
+      return_content: yes
+      status_code: 201
+    with_fileglob:
+      - "/home/robo/docker-volumes/playbooks/*.yml"
