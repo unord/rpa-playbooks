@@ -47,4 +47,4 @@
       return_content: yes
       status_code: 201
     with_fileglob:
-      - "/home/robo/docker-volumes/playbooks/*.yml"
+      - "/home/robo/docker-volumes/playbook/*.yml"
