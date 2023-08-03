@@ -6,13 +6,13 @@
 
   - name: Ensure directory exists
     file:
-      path: "./github-repo"
+      path: "{{ ansible_env.PWD }}/github-repo"
       state: directory
 
   - name: Clone Git repository
     git:
       repo: 'https://github.com/unord/rpa-stacks.git'
-      dest: "./github-repo"
+      dest: "{{ ansible_env.PWD }}/github-repo"
     ignore_errors: yes
 
   - name: Authenticate with Portainer API
@@ -43,4 +43,4 @@
       return_content: yes
       status_code: 201
     with_fileglob:
-      - "./github-repo/*.yml"
+      - "{{ ansible_env.PWD }}/github-repo/*.yml"
