@@ -34,7 +34,7 @@
     set_fact:
       portainer_jwt: "{{ portainer_auth_result.json.jwt }}"
 
-    - name: Retrieve Portainer endpoints
+  - name: Retrieve Portainer endpoints
     uri:
       url: "http://10.18.225.150:9000/api/endpoints"
       method: GET
