@@ -40,7 +40,7 @@
 
   - name: Retrieve all Portainer stacks for the specific endpoint
     uri:
-      url: "http://10.18.225.150:9000/api/endpoints/{{ endpoint_id }}/stacks"
+      url: "http://10.18.225.150:9000/api/endpoints/{{ endpoint_id }}/docker/stacks"
       method: GET
       headers:
         Authorization: "Bearer {{ portainer_jwt }}"
@@ -59,7 +59,7 @@
 
   - name: Create a stack for each .yml file in a directory
     uri:
-      url: "http://10.18.225.150:9000/api/endpoints/{{ endpoint_id }}/stacks?type=1"
+      url: "http://10.18.225.150:9000/api/endpoints/{{ endpoint_id }}/docker/stacks?type=1"
       method: POST
       body_format: json
       headers:
