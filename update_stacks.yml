@@ -50,6 +50,11 @@
     loop: "{{ portainer_endpoints_result.json }}"
     when: item.Name == "Docker Swarm Linux"
 
+  - name: Print all stack names
+    debug:
+      msg: "{{ item.Name }}"
+    loop: "{{ portainer_stacks_result.json }}"
+
   - name: Create a stack for each .yml file in a directory
     uri:
       url: "http://10.18.225.150:9000/api/endpoints/{{ endpoint_id }}/stacks?type=1"
