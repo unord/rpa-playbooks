@@ -21,7 +21,7 @@
 
     - name: Get list of yml files
       find:
-        paths: "/home/robo/docker-volumes/playbook/"
+        paths: "/github-repo/"
         patterns: '*.yml'
       register: yml_files
 
