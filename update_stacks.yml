@@ -5,13 +5,13 @@
 
   - name: Ensure directory exists
     file:
-      path: "/home/robo/docker-volumes/playbook/github-repo"
+      path: "/home/robo/docker-volumes/playbook/"
       state: directory
 
   - name: Clone Git repository
     git:
       repo: 'https://github.com/unord/rpa-stacks.git'
-      dest: "/home/robo/docker-volumes/playbook/github-repo"
+      dest: "/home/robo/docker-volumes/playbook/"
     ignore_errors: yes
 
   - name: Authenticate with Portainer API
