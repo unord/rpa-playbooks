@@ -1,75 +1,38 @@
 ---
-- hosts: all
-  gather_facts: yes
+- hosts: localhost
+  gather_facts: no
   tasks:
+    - name: Ensure directory exists
+      file:
+        path: "/home/robo/docker-volumes/playbook/"
+        state: directory
 
-  - name: Ensure directory exists
-    file:
-      path: "/home/robo/docker-volumes/playbook/"
-      state: directory
+    - name: Add directory to Git safe list
+      shell: |
+        git config --global --add safe.directory /home/robo/docker-volumes/playbook
+      ignore_errors: true
 
-  - name: Add directory to Git safe list
-    shell: |
-      git config --global --add safe.directory /home/robo/docker-volumes/playbook
-    ignore_errors: true
+    - name: Clone Git repository
+      git:
+        repo: 'https://github.com/unord/rpa-stacks.git'
+        dest: "/home/robo/docker-volumes/playbook/"
+      become: yes
+      ignore_errors: yes
 
-  - name: Clone Git repository
-    git:
-      repo: 'https://github.com/unord/rpa-stacks.git'
-      dest: "/home/robo/docker-volumes/playbook/github-repo"
-    become: yes
-    ignore_errors: yes
+    - name: Get list of yml files
+      find:
+        paths: "/home/robo/docker-volumes/playbook/"
+        patterns: '*.yml'
+      register: yml_files
 
-  - name: Authenticate with Portainer API
-    uri:
-      url: "http://10.18.225.150:9000/api/auth"
-      method: POST
-      body_format: json
-      body: {"Username": "{{ ansible_user }}", "Password": "{{ ansible_sudo_pass }}"}
-      return_content: yes
-      status_code: 200
-    register: portainer_auth_result
-
-  - name: Set Portainer JWT as a fact
-    set_fact:
-      portainer_jwt: "{{ portainer_auth_result.json.jwt }}"
-
-  - name: Set hardcoded Endpoint ID as a fact
-    set_fact:
-      endpoint_id: 44287
-
-  - name: Retrieve all Portainer stacks for the specific endpoint
-    uri:
-      url: "http://10.18.225.150:9000/api/endpoints/{{ endpoint_id }}/docker/stacks"
-      method: GET
-      headers:
-        Authorization: "Bearer {{ portainer_jwt }}"
-      return_content: yes
-      status_code: 200
-    register: portainer_stacks_result
-
-  - name: Filter stacks by endpoint ID
-    set_fact:
-      endpoint_stacks: "{{ portainer_stacks_result.json | selectattr('EndpointID', 'equalto', endpoint_id) | list }}"
-
-  - name: Print all stack names
-    debug:
-      msg: "{{ item.Name }}"
-    loop: "{{ endpoint_stacks }}"
-
-  - name: Create a stack for each .yml file in a directory
-    uri:
-      url: "http://10.18.225.150:9000/api/endpoints/{{ endpoint_id }}/docker/stacks?type=1"
-      method: POST
-      body_format: json
-      headers:
-        Authorization: "Bearer {{ portainer_jwt }}"
-      body:
-        {
-          "Name": "{{ item | basename | regex_replace('\\.yml$', '') }}",
-          "StackFileContent": "{{ lookup('file', item) }}"
-        }
-      return_content: yes
-      status_code: 201
-    with_fileglob:
-      - "/github-repo/*.yml"
+    - name: Add Stack to Portainer
+      uri:
+        url: "http://10.18.225.150:9000/api/stacks?type=1&method=string&endpointId=44287"
+        method: POST
+        headers:
+          Authorization: "Bearer ptr_cMcWCNM8PnDltTKyy489t7PM1QsuDLnDIOmcQc25HTQ="
+        body_format: json
+        body: 
+          Name: "{{ item.path | basename | regex_replace('.yml$', '') }}"
+          StackFileContent: "{{ lookup('file', item.path) }}"
+      loop: "{{ yml_files.files }}"
