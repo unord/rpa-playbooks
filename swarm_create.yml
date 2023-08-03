@@ -7,43 +7,40 @@
   - name: Check if Docker is installed
     command: docker -v
     register: docker_installed
-    ignore_errors: yes
+    ignore_errors: true
 
-  - name: Fail if Docker is installed
-    fail:
-      msg: "Docker is already installed. Exiting..."
-    when: docker_installed is succeeded
+  - name: Install Docker dependencies if Docker is not installed
+    block:
+      - name: Install Docker dependencies
+        dnf:
+          name:
+            - dnf-plugins-core
+            - docker-ce
+            - docker-ce-cli
+            - containerd.io
+            - docker-buildx-plugin
+            - docker-compose-plugin
+            - docker-compose
+          state: present
+      - name: Enable and start Docker service
+        systemd:
+          name: docker
+          enabled: yes
+          state: started
+      - name: Reboot the system
+        reboot:
+    when: docker_installed is failed
 
   - name: Check if Docker Swarm is active
     command: docker info --format '{{.Swarm.LocalNodeState}}'
     register: docker_swarm
-    ignore_errors: yes
+    ignore_errors: true
 
   - name: Fail if Docker Swarm is active
     fail:
       msg: "Docker Swarm is active. Exiting..."
     when: docker_swarm.stdout == "active"
-
-  - name: Install Docker dependencies
-    dnf:
-      name:
-        - dnf-plugins-core
-        - docker-ce
-        - docker-ce-cli
-        - containerd.io
-        - docker-buildx-plugin
-        - docker-compose-plugin
-        - docker-compose
-      state: present
-
-  - name: Enable and start Docker service
-    systemd:
-      name: docker
-      enabled: yes
-      state: started
-
-  - name: Reboot the system
-    reboot:
+    ignore_errors: true
 
 - hosts: UN-VMS-RPA-05
   gather_facts: no
