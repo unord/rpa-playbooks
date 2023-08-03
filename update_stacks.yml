@@ -34,7 +34,7 @@
     set_fact:
       portainer_jwt: "{{ portainer_auth_result.json.jwt }}"
 
-  - name: Retrieve Portainer endpoints
+    - name: Retrieve Portainer endpoints
     uri:
       url: "http://10.18.225.150:9000/api/endpoints"
       method: GET
@@ -44,15 +44,16 @@
       status_code: 200
     register: portainer_endpoints_result
 
+
   - name: Set Endpoint ID as a fact
     set_fact:
       endpoint_id: "{{ item.Id }}"
     loop: "{{ portainer_endpoints_result.json }}"
     when: item.Name == "Docker Swarm Linux"
-
-  - name: Retrieve all Portainer stacks
+    
+  - name: Retrieve Portainer stacks for the selected endpoint
     uri:
-      url: "http://10.18.225.150:9000/api/stacks"
+      url: "http://10.18.225.150:9000/api/endpoints/{{ endpoint_id }}/stacks"
       method: GET
       headers:
         Authorization: "Bearer {{ portainer_jwt }}"
