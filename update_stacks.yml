@@ -27,7 +27,7 @@
 
     - name: Add Stack to Portainer
       uri:
-        url: "http://10.18.225.150:9000/api/stacks?type=1&method=string&endpointId=44287"
+        url: "http://10.18.225.150:9000/api/stacks?type=1&method=string"
         method: POST
         headers:
           Authorization: "Bearer {{ portainer_jwt }}"
