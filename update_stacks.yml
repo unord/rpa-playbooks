@@ -1,18 +1,17 @@
 ---
 - hosts: all
   gather_facts: yes
-  become: yes
   tasks:
 
   - name: Ensure directory exists
     file:
-      path: "/home/robo/docker-volumes/playbook"
+      path: "/home/robo/docker-volumes/playbook/github-repo"
       state: directory
 
   - name: Clone Git repository
     git:
       repo: 'https://github.com/unord/rpa-stacks.git'
-      dest: "/home/robo/docker-volumes/playbook"
+      dest: "/home/robo/docker-volumes/playbook/github-repo"
     ignore_errors: yes
 
   - name: Authenticate with Portainer API
@@ -20,13 +19,32 @@
       url: "http://10.18.225.150:9000/api/auth"
       method: POST
       body_format: json
-      body: '{"Username": "{{ ansible_user }}", "Password": "{{ ansible_sudo_pass }}"}'
+      body: {"Username": "{{ ansible_user }}", "Password": "{{ ansible_sudo_pass }}"}
       return_content: yes
       status_code: 200
     register: portainer_auth_result
 
+  - name: Set Portainer JWT as a fact
+    set_fact:
+      portainer_jwt: "{{ portainer_auth_result.json.jwt }}"
+
+  - name: Retrieve Portainer endpoints
+    uri:
+      url: "http://10.18.225.150:9000/api/endpoints"
+      method: GET
+      headers:
+        Authorization: "Bearer {{ portainer_jwt }}"
+      return_content: yes
+      status_code: 200
+    register: portainer_endpoints_result
+
+  - name: Set Endpoint ID as a fact
+    set_fact:
+      endpoint_id: "{{ item.Id }}"
+    loop: "{{ portainer_endpoints_result.json }}"
+    when: item.Name == "Docker Swarm Linux"
+
   - name: Create a stack for each .yml file in a directory
-    become: yes
     uri:
       url: "http://10.18.225.150:9000/api/endpoints/{{ endpoint_id }}/stacks?type=1"
       method: POST
