@@ -12,7 +12,7 @@
   - name: Clone Git repository
     git:
       repo: 'https://github.com/unord/rpa-stacks.git'
-      dest: "{{ ansible_env.PWD }}/github-repo"
+      dest: "./github-repo"
     ignore_errors: yes
 
   - name: Authenticate with Portainer API
@@ -28,6 +28,7 @@
   # ... rest of your tasks ...
 
   - name: Create a stack for each .yml file in a directory
+    become: yes
     uri:
       url: "http://10.18.225.150:9000/api/endpoints/{{ endpoint_id }}/stacks?type=1"
       method: POST
