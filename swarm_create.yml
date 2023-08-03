@@ -1,0 +1,99 @@
+---
+- hosts: docker_swarm
+  gather_facts: yes
+  become: yes
+  tasks:
+
+  - name: Check if Docker is installed
+    command: docker -v
+    register: docker_installed
+    ignore_errors: yes
+
+  - name: Fail if Docker is installed
+    fail:
+      msg: "Docker is already installed. Exiting..."
+    when: docker_installed is succeeded
+
+  - name: Check if Docker Swarm is active
+    command: docker info --format '{{.Swarm.LocalNodeState}}'
+    register: docker_swarm
+    ignore_errors: yes
+
+  - name: Fail if Docker Swarm is active
+    fail:
+      msg: "Docker Swarm is active. Exiting..."
+    when: docker_swarm.stdout == "active"
+
+  - name: Install Docker dependencies
+    dnf:
+      name:
+        - dnf-plugins-core
+        - docker-ce
+        - docker-ce-cli
+        - containerd.io
+        - docker-buildx-plugin
+        - docker-compose-plugin
+        - docker-compose
+      state: present
+
+  - name: Enable and start Docker service
+    systemd:
+      name: docker
+      enabled: yes
+      state: started
+
+  - name: Reboot the system
+    reboot:
+
+- hosts: UN-VMS-RPA-05
+  gather_facts: no
+  become: yes
+  tasks:
+
+  - name: Initialize Docker Swarm
+    command: docker swarm init
+    register: swarm_init
+
+- hosts: "!UN-VMS-RPA-05"
+  gather_facts: no
+  become: yes
+  tasks:
+
+  - name: Get manager token
+    command: docker swarm join-token manager -q
+    delegate_to: UN-VMS-RPA-05
+    register: manager_token
+
+  - name: Join Docker Swarm as manager
+    command: docker swarm join --token {{ manager_token.stdout }} {{ hostvars['UN-VMS-RPA-05']['ansible_host'] }}:2377
+
+- hosts: docker_swarm
+  gather_facts: no
+  become: yes
+  tasks:
+
+  - name: Check Docker Swarm nodes
+    command: docker node ls
+    register: docker_nodes
+    changed_when: False
+
+  - name: Print Docker Swarm nodes
+    debug: 
+      msg: "{{ docker_nodes.stdout_lines }}"
+
+  - name: Start Portainer Stack
+    docker_stack:
+      state: present
+      name: portainer
+      compose:
+        - "https://github.com/unord/rpa-playbooks/blob/main/portainer_swarm.yml"
+
+  - name: Check Docker services
+    command: docker service ls
+    register: docker_services
+    changed_when: False
+
+  - name: Print Docker services
+    debug: 
+      msg: "{{ docker_services.stdout_lines }}"
+...
