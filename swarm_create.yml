@@ -31,6 +31,11 @@
         reboot:
     when: docker_installed is failed
 
+  - name: Install jsondiff using pip
+    pip:
+      name: jsondiff
+      state: present
+
   - name: Check if Docker Swarm is active
     command: docker info --format '{{.Swarm.LocalNodeState}}'
     register: docker_swarm
@@ -87,10 +92,4 @@
 
   - name: Check Docker services
     command: docker service ls
-    register: docker_services
-    changed_when: False
-
-  - name: Print Docker services
-    debug: 
-      msg: "{{ docker_services.stdout_lines }}"
-...
+    register:
