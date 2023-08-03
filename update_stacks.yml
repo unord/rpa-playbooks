@@ -2,6 +2,11 @@
 - hosts: all
   gather_facts: yes
   tasks:
+  - name: Check if directory exists
+    stat:
+      path: /home/robo/docker-volumes/playbook
+    register: directory_check
+    
   - name: Authenticate with Portainer API
     uri:
       url: "http://10.18.225.150:9000/api/auth"
