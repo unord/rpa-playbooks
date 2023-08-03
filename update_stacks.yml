@@ -63,7 +63,7 @@
   - name: Print all stack names
     debug:
       msg: "{{ item.Name }}"
-    loop: "{{ portainer_stacks_result.json }}
+    loop: "{{ portainer_stacks_result.json }}"
 
   - name: Create a stack for each .yml file in a directory
     uri:
