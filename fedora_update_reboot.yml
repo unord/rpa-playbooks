@@ -12,7 +12,7 @@
         shell: "dnf upgrade -y"
         register: patchresult
 
-      - name: Reboot the server
+      - name: Reboot the servers
         tags: reboot
         become: yes
         become_method: sudo
