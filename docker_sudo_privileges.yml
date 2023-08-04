@@ -1,5 +1,5 @@
 ---
-- hosts: your-target-hosts
+- hosts: all
   become: yes
   tasks:
     - name: Ensure docker group exists
