@@ -1,110 +1,107 @@
 ---
-  - name: Swarm prepare
-    hosts: all
-    gather_facts: yes
-    become: yes
-    vars:
-      folder_path: /home/robo/docker-volumes
-      fstab_path: /etc/fstab
-      cifs_detail: "//Unord-fil.efif.dk/HomeM-Z/R/robo/volumes/ /home/robo/docker-volumes cifs username={{ ansible_user }},password={{ ansible_sudo_pass }},iocharset=utf8,rw,uid=1000,sec=ntlmssp,vers=3.0 0 0
-    tasks:
-      - name: Patch the server
-        tags: Patch
-        become: yes
-        shell: "dnf upgrade -y"
-        register: patchresult
+- name: Swarm prepare
+  hosts: all
+  gather_facts: yes
+  become: yes
+  vars:
+    folder_path: /home/robo/docker-volumes
+    fstab_path: /etc/fstab
+    cifs_detail: "//Unord-fil.efif.dk/HomeM-Z/R/robo/volumes/ /home/robo/docker-volumes cifs username={{ ansible_user }},password={{ ansible_sudo_pass }},iocharset=utf8,rw,uid=1000,sec=ntlmssp,vers=3.0 0 0"
+  tasks:
+    - name: Patch the server
+      tags: Patch
+      become: yes
+      shell: "dnf upgrade -y"
+      register: patchresult
 
-      - name: Ensure /home/robo/docker-volumes directory exists
-        ansible.builtin.file:
-          path: "{{ folder_path }}"
-          state: directory
+    - name: Ensure /home/robo/docker-volumes directory exists
+      ansible.builtin.file:
+        path: "{{ folder_path }}"
+        state: directory
 
-      - name: Install cifs-utils
-        ansible.builtin.dnf:
-          name: cifs-utils
-          state: latest
-        become: yes
+    - name: Install cifs-utils
+      ansible.builtin.dnf:
+        name: cifs-utils
+        state: latest
 
-      - name: Ensure fstab contains the CIFS mount //Unord-fil.efif.dk/HomeM-Z/R/robo/volumes/
-        ansible.builtin.mount:
-          path: "{{ folder_path }}"
-          src: "//Unord-fil.efif.dk/HomeM-Z/R/robo/volumes/"
-          fstype: cifs
-          opts: "username={{ ansible_user }},password={{ ansible_sudo_pass }},iocharset=utf8,rw,uid=1000,sec=ntlmssp,vers=3.0"
-          state: present
-        become: yes
+    - name: Ensure fstab contains the CIFS mount //Unord-fil.efif.dk/HomeM-Z/R/robo/volumes/
+      ansible.builtin.mount:
+        path: "{{ folder_path }}"
+        src: "//Unord-fil.efif.dk/HomeM-Z/R/robo/volumes/"
+        fstype: cifs
+        opts: "username={{ ansible_user }},password={{ ansible_sudo_pass }},iocharset=utf8,rw,uid=1000,sec=ntlmssp,vers=3.0"
+        state: present
 
-      - name: Ensure Wayland is disabled
-        lineinfile:
-          path: /etc/gdm/custom.conf
-          regexp: '^#WaylandEnable=false'
-          line: 'WaylandEnable=false'
-          state: present
-          
-      - name: Uninstall Docker
-        dnf:
-          name: 
-            - docker-ce
-            - docker-ce-cli
-            - containerd.io
-          state: absent
-        become: yes
+    - name: Ensure Wayland is disabled
+      lineinfile:
+        path: /etc/gdm/custom.conf
+        regexp: '^#WaylandEnable=false'
+        line: 'WaylandEnable=false'
+        state: present
 
-      - name: Install dnf-plugins-core
-        dnf:
-          name: dnf-plugins-core
-          state: present
+    - name: Uninstall Docker
+      dnf:
+        name: 
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        state: absent
 
-      - name: Add Docker repo
-        command: dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
-        args:
-          warn: no
-        register: docker_repo_result
-        changed_when: "'Repository successfully added' in docker_repo_result.stdout"
+    - name: Install dnf-plugins-core
+      dnf:
+        name: dnf-plugins-core
+        state: present
 
-      - name: Install Docker packages
-        dnf:
-          name:
-            - docker-ce
-            - docker-ce-cli
-            - containerd.io
-            - docker-buildx-plugin
-            - docker-compose-plugin
-          state: present
+    - name: Add Docker repo
+      command: dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
+      args:
+        warn: no
+      register: docker_repo_result
+      changed_when: "'Repository successfully added' in docker_repo_result.stdout"
 
-      - name: Enable and start Docker service
-        systemd:
-          name: docker
-          enabled: yes
-          state: started
+    - name: Install Docker packages
+      dnf:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-buildx-plugin
+          - docker-compose-plugin
+        state: present
 
-      - name: Ensure docker group exists
-        group:
-          name: docker
-          state: present
+    - name: Enable and start Docker service
+      systemd:
+        name: docker
+        enabled: yes
+        state: started
 
-      - name: Add user to docker group
-        user:
-          name: "{{ ansible_user }}"
-          groups: docker
-          append: yes
+    - name: Ensure docker group exists
+      group:
+        name: docker
+        state: present
 
-      - name: Download TeamViewer RPM
-        get_url:
-          url: https://download.teamviewer.com/download/linux/teamviewer.x86_64.rpm
-          dest: /tmp/teamviewer.x86_64.rpm
-          mode: '0755'
+    - name: Add user to docker group
+      user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: yes
 
-      - name: Install TeamViewer
-        yum:
-          name: /tmp/teamviewer.x86_64.rpm
-          state: present
+    - name: Download TeamViewer RPM
+      get_url:
+        url: https://download.teamviewer.com/download/linux/teamviewer.x86_64.rpm
+        dest: /tmp/teamviewer.x86_64.rpm
+        mode: '0755'
 
-      - name: Start TeamViewer daemon
-        command:
-          cmd: /usr/bin/teamviewer --daemon start
-        args:
-          warn: no
+    - name: Install TeamViewer
+      yum:
+        name: /tmp/teamviewer.x86_64.rpm
+        state: present
 
-      - name: Reboot the servers
-        reboot:
+    - name: Start TeamViewer daemon
+      command:
+        cmd: /usr/bin/teamviewer --daemon start
+      args:
+        warn: no
+
+    - name: Reboot the servers
+      reboot:
