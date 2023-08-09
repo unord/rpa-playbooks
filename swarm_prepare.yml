@@ -103,6 +103,7 @@
       yum:
         name: /tmp/teamviewer.x86_64.rpm
         state: present
+        disable_gpg_check: yes
 
     - name: Start TeamViewer daemon
       command:
