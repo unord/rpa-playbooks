@@ -95,13 +95,13 @@
 
     - name: Download TeamViewer RPM
       get_url:
-        url: https://download.teamviewer.com/download/linux/teamviewer.x86_64.rpm
-        dest: /tmp/teamviewer.x86_64.rpm
+        url: https://download.teamviewer.com/download/linux/teamviewer-host.x86_64.rpm
+        dest: /tmp/teamviewer-host.x86_64.rpm
         mode: '0755'
 
     - name: Install TeamViewer
       yum:
-        name: /tmp/teamviewer.x86_64.rpm
+        name: /tmp/teamviewer-host.x86_64.rpm
         state: present
         disable_gpg_check: yes
 
