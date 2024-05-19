@@ -41,7 +41,7 @@
       - 8080/tcp # Traefik
       - 8081/tcp
       - 8082/tcp
-      - 8083/tcp
+      - 8083/tcp # jira
       - 8084/tcp
       - 8085/tcp
       - 8086/tcp
