@@ -33,6 +33,11 @@
         opts: "username={{ ansible_user }},password={{ ansible_sudo_pass }},iocharset=utf8,rw,uid=1000,sec=ntlmssp,vers=3.0"
         state: present
 
+    - name: Install fastfetch packages
+      dnf:
+        name:
+          - fastfetch
+        state: present
 
     - name: Uninstall Docker
       dnf:
