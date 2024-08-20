@@ -1,0 +1,17 @@
+---
+- name: Install fastfetch
+  hosts: all
+  gather_facts: yes
+  become: yes
+  tasks:
+  
+
+    - name: Install fastfetch packages
+      dnf:
+        name:
+          - fastfetch
+        state: present
+
+
+
+
