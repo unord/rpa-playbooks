@@ -53,7 +53,7 @@
         state: present
 
     - name: Add Docker repo
-      command: dnf config-manager --add-repo https://download.docker.com/linux/fedora/docker-ce.repo
+      command: dnf config-manager addrepo --from-repofile=https://download.docker.com/linux/fedora/docker-ce.repo
       args:
         warn: no
       register: docker_repo_result
